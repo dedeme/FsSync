@@ -1,0 +1,95 @@
+#!/bin/bash
+
+BASE=/deme/dmJava8/app/FtpSync
+JAR=ftpsync.jar
+MAIN=ftpsync.FtpSync
+
+list () {
+  LS0=$(ls -R)
+  D=''
+  LS=''
+  DS=''
+  for E in $LS0
+  do
+    E2=$(echo $E | sed -e 's/://g')
+    if [ $E2 = $E ]
+    then
+      if [ "$D" = "" ]
+      then
+        LS=$LS' '$E
+      else
+	      LS=$LS' '$D/$E
+	    fi
+    else
+      D=$(echo $E2 | sed -e 's#[.]/##1')
+      if [ $D = "." ]
+      then
+        D=""
+      fi
+      DS=$DS' '$D
+      echo $D
+    fi
+  done
+}
+
+HERE=$(pwd)
+
+cd $BASE/dist                  #in dist
+if [ -d tmp ]
+then
+  rm -fR tmp
+fi
+mkdir tmp
+
+cd lib                        #in lib
+list
+for E in $LS
+do
+  E=$(echo $E | sed -e 's#[.]/##1')
+  echo $E
+  cd ..                       #in dist
+  cp lib/$E tmp
+  cd tmp                      #in tmp
+  jar xf $E
+  rm $E
+done
+
+cd ..                          #in dist
+cp $JAR tmp
+cd tmp                         #in tmp
+
+jar xf $JAR
+rm $JAR
+rm -fR META-INF
+rm MANIFEST.MF
+mkdir META-INF
+MF=META-INF/MANIFEST.MF
+echo 'Manifest-Version: 1.0' > $MF
+echo 'Created-By: 1.7.0_25-b15' >> $MF
+echo 'Main-Class: '$MAIN >> $MF
+echo '' >> $MF
+
+list
+
+FLIST=f.text
+echo '' > $FLIST
+for E in $LS
+do
+  if [ -f $E ]
+  then
+    echo $E >> $FLIST
+  fi
+done
+rm -f $JAR
+jar cfm $JAR $MF @$FLIST
+
+cd ../
+
+rm -f $JAR
+cp tmp/$JAR $JAR
+
+rm -fR lib 
+rm -fR tmp 
+rm -f README.TXT 
+
+cd $HERE
