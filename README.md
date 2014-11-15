@@ -1,5 +1,5 @@
-FsSync
+FtpSync
 =======
-Utility for synchronizing repositories.
+Utility for synchronizing FTP repositories.
 
 _In construction at the moment_.

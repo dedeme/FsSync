@@ -1,21 +1,21 @@
 /*
  * Copyright 11-nov-2014 ºDeme
  *
- * This file is part of 'fssync'.
+ * This file is part of 'ftpsync'.
  *
- * 'fssync' is free software: you can redistribute it and/or modify
+ * 'ftpsync' is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License.
  *
- * 'fssync' is distributed in the hope that it will be useful,
+ * 'ftpsync' is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with 'fssync'.  If not, see <http://www.gnu.org/licenses/>.
+ * along with 'ftpsync'.  If not, see <http://www.gnu.org/licenses/>.
  */
-package fssync;
+package ftpsync;
 
 import java.util.List;
 import java.util.function.BiFunction;
@@ -56,14 +56,14 @@ public class Algor {
    * @param mustCopy Indicates if a copy has to be made. Returns:
    * <dl>
    * <dt>null</dt><dd>Copy has to be made.</dd>
-   * <dt>Empty string</dt><dd>Copy has not to be made.</dd>
+   * <dt>""</dt><dd>Copy has not to be made.</dd>
    * <dt>message</dt><dd>An error has happened.</dd>
    * </dl>
    * @param copy Operation to actualize an element which is obsolete.
    * @param mustDelete Indicates if a deletion has to be made. Returns:
    * <dl>
    * <dt>null</dt><dd>Deletion has to be made.</dd>
-   * <dt>Empty string</dt><dd>Deletion has not to be made.</dd>
+   * <dt>""</dt><dd>Deletion has not to be made.</dd>
    * <dt>message</dt><dd>An error has happened.</dd>
    * </dl>
    * @param delete Operation to delete an element in copy which is not in
