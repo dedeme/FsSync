@@ -1,8 +1,8 @@
 #!/bin/bash
 
-BASE=/deme/dmJava8/app/FtpSync
-JAR=ftpsync.jar
-MAIN=ftpsync.FtpSync
+BASE=/deme/dmJava8/app/FsSync
+JAR=fssync.jar
+MAIN=fssync.FsSync
 
 list () {
   LS0=$(ls -R)

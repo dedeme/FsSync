@@ -17,6 +17,10 @@
  */
 package fssync;
 
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import jcifs.smb.*;
+
 /**
  *
  * @version 1.0
@@ -28,7 +32,20 @@ public class FsSync {
   /**
    * @param args the command line arguments
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
+    String pss = ReadPass.show("Samba password:");
+
+    jcifs.Config.setProperty("jcifs.netbios.wins", "192.168.1.2");
+    NtlmPasswordAuthentication auth =
+      new NtlmPasswordAuthentication(null, "deme", pss);
+    SmbFileInputStream in
+      = new SmbFileInputStream(
+        new SmbFile("smb://server/home/www/dedeme.css", auth));
+    byte[] b = new byte[8192];
+    int n;
+    while ((n = in.read(b)) > 0) {
+      System.out.write(b, 0, n);
+    }
     System.out.println("here");
   }
 
