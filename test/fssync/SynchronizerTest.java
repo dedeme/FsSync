@@ -15,8 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with 'ftpsync'.  If not, see <http://www.gnu.org/licenses/>.
  */
-package ftpsync;
+package fssync;
 
+import fssync.Algor;
 import java.util.ArrayList;
 import java.util.function.BiFunction;
 import java.util.function.Function;
