@@ -1,0 +1,18 @@
+#Local server configuration
+#Do not modify that
+-------------------
+type=local
+
+#Local data:
+#Root directory in local file system
+#For example:
+#local-root=/home/john/data
+---------------------------
+local-root=
+
+#Local repository
+#Root directory in local file system
+#For example:
+#remote-root=/media/repository/data
+------------------------------
+remote-root=

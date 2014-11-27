@@ -22,33 +22,38 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
+ * Synchronization algorithm
  *
  * @version 1.0
  * @since 11-Nov-2014
  * @author deme
  */
 public class Algor {
-  static <S, T> String operate (
+
+  static <S, T> String operate(
     List<S> source,
     List<T> target,
     BiFunction<S, Iterable<T>, String> mustOperate,
     Function<S, String> operation
-  ){
+  ) {
     String r = "";
     for (S s : source) {
       String must = mustOperate.apply(s, target);
-      if (must == null)
+      if (must == null) {
         r = operation.apply(s);
-      else
+      } else {
         r = must;
-      if (!r.equals(""))
+      }
+      if (!r.equals("")) {
         break;
+      }
     }
     return r;
   }
 
   /**
    * Synchronizes elements of source with elements of target.
+   *
    * @param <S> Type of source element (original)
    * @param <T> Type of target element (copy)
    * @param source List of elements S
@@ -67,9 +72,9 @@ public class Algor {
    * <dt>message</dt><dd>An error has happened.</dd>
    * </dl>
    * @param delete Operation to delete an element in copy which is not in
-   *   origen.
-   * @return An empty string if synchronization was successful or a message
-   *   if an error happened.
+   * origen.
+   * @return An empty string if synchronization was successful or a message if
+   * an error happened.
    */
   public static <S, T> String sync(
     List<S> source,

@@ -22,30 +22,22 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
- * <p>Interface for synchronizing two file systems.</p>
+ * <p>
+ * Interface for synchronizing local data.</p>
  * <p>Examples:</p>
  * <h3>Local directories</h3>
  * <pre>
- * String result = FileSync.sync(
- *   FLocalSync.sourceList(new File("/deme/www")),
- *   FLocalSync.targetList(new File("/deme/wwwxx"))
- * );
- * System.out.println(result);</pre>
+ String result = Local.sync(
+   FLocalSync.sourceList(new File("/deme/www")),
+   FLocalSync.targetList(new File("/deme/wwwxx"))
+ );
+ System.out.println(result);</pre>
  *
  * @version 1.0
  * @since 13-Nov-2014
  * @author deme
  */
-public interface FileSync {
-
-  /**
-   * Creates a FileSync from a path. This function is used to copy
-   *
-   * @param path Path of new FileSync
-   * @return A new FileSync
-   */
-  public FileSync make(String path);
-
+public interface Local {
   /**
    * File Path
    *
@@ -75,31 +67,12 @@ public interface FileSync {
    */
   public InputStream inputStream() throws Exception;
 
-  /**
-   * Output stream bound to this
-   *
-   * @return Output stream bound to this
-   * @throws java.lang.Exception
-   */
-  public OutputStream outputStream() throws Exception;
-
-  /**
-   * Creates a directory
-   *
-   * @throws Exception
-   */
-  public void mkdir() throws Exception;
-
-  /**
-   * Deletes this
-   *
-   * @return If operation succeeded an empty string, else an error message.
-   */
-  public String delete();
-
-  static String copy(FileSync s, FileSync t) {
+  static String copy(Local s, Remote t) {
     String r = "";
     try {
+      if (s.getPath().equals(t.getPath())) {
+        t.delete();
+      }
       if (s.isDirectory()) {
         t.mkdir();
       } else {
@@ -125,12 +98,12 @@ public interface FileSync {
   }
 
   static String mustCopy(
-    FileSync fsource, Iterable<FileSync> fs
+    Local fsource, Iterable<Remote> fs
   ) {
     try {
-      for (FileSync ft : fs) {
+      for (Remote ft : fs) {
         if (fsource.getPath().equals(ft.getPath())) {
-          if (fsource.lastModified() > ft.lastModified()) {
+          if (fsource.lastModified() > ft.lastSync()) {
             return null;
           }
           return "";
@@ -144,12 +117,12 @@ public interface FileSync {
   }
 
   static String mustDelete(
-    FileSync ft, Iterable<FileSync> fs
+    Remote ft, Iterable<Local> fs
   ) {
     try {
       String r = null;
 
-      for (FileSync fsource : fs) {
+      for (Local fsource : fs) {
         if (fsource.getPath().equals(ft.getPath())) {
           return "";
         }
@@ -162,10 +135,10 @@ public interface FileSync {
   }
 
   public static String sync(
-    List<FileSync> source, List<FileSync> target
+    List<Local> source, List<Remote> target
   ) {
     try {
-      FileSync ft = target.get(0);
+      Remote ft = target.get(0);
       return Algor.sync(
         source,
         target,
@@ -173,12 +146,16 @@ public interface FileSync {
           return mustCopy(f, i);
         },
         (f) -> {
+          System.out.println(String.format(
+            "Copied '%s'", f.getPath()));
           return copy(f, ft.make(f.getPath()));
         },
         (f, i) -> {
           return mustDelete(f, i);
         },
         (f) -> {
+          System.out.println(String.format(
+            "Deleted '%s'", f.getPath()));
           return f.delete();
         }
       );

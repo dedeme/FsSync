@@ -23,7 +23,6 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 

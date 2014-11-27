@@ -1,0 +1,17 @@
+
+Use:
+FsSync [mainOption [argument]]
+
+FsSync without arguments shows this message
+
+mainOption may be:
+help: Shows this message
+editor:
+  no argument: Shows command to launch editor.
+  arg: Changes editor command.
+    Examples:
+      FsSync editor "gedit $" (launches gedit)
+      FsSync editor "kwrite $" (launches kwrite)
+    Note:
+      '$' will be substituted for a file.
+list: Shows server list

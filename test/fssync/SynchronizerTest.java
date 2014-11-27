@@ -17,7 +17,6 @@
  */
 package fssync;
 
-import fssync.Algor;
 import java.util.ArrayList;
 import java.util.function.BiFunction;
 import java.util.function.Function;
