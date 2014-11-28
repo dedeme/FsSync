@@ -32,10 +32,12 @@ public interface Remote {
   /**
    * Creates a Remote from a path. This function is used to copy
    *
+   * @param isDirectory 'true' if 'path' is a directory
    * @param path Path of new Remote
    * @return A new Local
+   * @throws fssync.FsSyncException
    */
-  public Remote make(String path);
+  public Remote make(boolean isDirectory, String path) throws FsSyncException;
 
   /**
    * File Path
@@ -47,12 +49,20 @@ public interface Remote {
   /**
    * Return 'true' if path exists
    *
-   * @param path
    * @return
+   * @throws fssync.FsSyncException
    */
-  public boolean exists(String path);
+  public boolean exists()  throws FsSyncException;
 
-  /**
+   /**
+   * Indicates if this is a directory
+   *
+   * @return 'true', if this is a directory. 'false' otherwise
+   * @throws fssync.FsSyncException
+   */
+  public boolean isDirectory() throws FsSyncException;
+
+ /**
    * Time of last synchronization
    *
    * @return Time of last synchronization
@@ -63,22 +73,20 @@ public interface Remote {
    * Output stream bound to this
    *
    * @return Output stream bound to this
-   * @throws java.lang.Exception
+   * @throws fssync.FsSyncException
    */
-  public OutputStream outputStream() throws Exception;
+  public OutputStream outputStream() throws FsSyncException;
 
   /**
    * Creates a directory
    *
-   * @throws Exception
+   * @throws fssync.FsSyncException
    */
-  public void mkdir() throws Exception;
+  public void mkdir() throws FsSyncException;
 
   /**
    * Deletes this
-   *
-   * @return If operation succeeded an empty string, else an error message.
    */
-  public String delete();
+  public void delete();
 
 }

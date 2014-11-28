@@ -1,7 +1,7 @@
-#Local server configuration
+#Samba server configuration
 #Do not modify that
 -------------------
-type=local
+type=smb
 
 #Local data:
 #Root directory in local file system
@@ -13,7 +13,7 @@ local-root=
 #Local repository
 #Root directory in local file system
 #For example:
-#remote-root=/media/repository/data
+#remote-root=/data
 ------------------------------
 remote-root=
 
@@ -24,3 +24,26 @@ remote-root=
 #For example:
 #ignore=f1.txt;img/logo.png
 ignore=
+
+#Machine name
+#For example;
+#machine=192.168.1.12
+#machine=server
+machine=
+
+#OPTIONAL:
+#Name of domain
+#For example:
+#domain=workgroup
+domain=
+
+#User name
+#For example:
+#user=mack
+user=
+
+#Key for save password
+#Program will ask for the effective password. If there are several connections
+#  with the same key, it will only ask for once and will substitute
+#  automatically key by password.
+passKey=

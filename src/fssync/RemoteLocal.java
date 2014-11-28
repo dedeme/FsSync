@@ -18,12 +18,13 @@
 package fssync;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Repository in the same directory to local data.
@@ -35,15 +36,18 @@ import java.util.Map;
 public class RemoteLocal {
 
   File root;
+  String[] ignore;
   long lastSynchronization;
 
   /**
    *
    * @param root Root of repository
+   * @param ignore Paths which will be ignored.
    * @param lastSync Last time which synchronizations was made.
    */
-  public RemoteLocal(File root, long lastSync) {
+  public RemoteLocal(File root, String[] ignore, long lastSync) {
     this.root = root;
+    this.ignore = ignore;
     lastSynchronization = lastSync;
   }
 
@@ -52,7 +56,18 @@ public class RemoteLocal {
     l.add(fls);
     if (fls.file.isDirectory()) {
       for (String str : fls.file.list()) {
-        addFile(l, root, new File(new File(path), str).toString());
+        if (Arrays.stream(ignore).anyMatch(i -> {
+          return i.equals(
+            path.equals("") ? str : path + File.separator + str);
+        })) {
+          // continue
+        } else {
+          if (path.equals("")) {
+            addFile(l, root, str);
+          } else {
+            addFile(l, root, path + File.separator + str);
+          }
+        }
       }
     }
   }
@@ -70,7 +85,6 @@ public class RemoteLocal {
   }
 
   class R implements Remote {
-
     String path;
     File file;
 
@@ -80,7 +94,7 @@ public class RemoteLocal {
     }
 
     @Override
-    public Remote make(String path) {
+    public Remote make(boolean isDirectory, String path) {
       return new R(root, path);
     }
 
@@ -91,8 +105,13 @@ public class RemoteLocal {
     }
 
     @Override
-    public boolean exists(String path) {
+    public boolean exists() {
       return file.exists();
+    }
+
+    @Override
+    public boolean isDirectory() {
+      return file.isDirectory();
     }
 
     @Override
@@ -101,19 +120,29 @@ public class RemoteLocal {
     }
 
     @Override
-    public OutputStream outputStream() throws Exception {
-      return new FileOutputStream(file);
+    public OutputStream outputStream() throws FsSyncException {
+      try {
+        return new FileOutputStream(file);
+      } catch (FileNotFoundException ex) {
+        throw new FsSyncException(ex.getMessage());
+      }
     }
 
     @Override
-    public void mkdir() throws Exception {
+    public void mkdir() throws FsSyncException {
       file.mkdir();
     }
 
+    void delete (File f) {
+      if (f.isDirectory()){
+        Arrays.stream(f.listFiles()).forEach(fl -> delete(fl));
+      }
+      f.delete();
+    }
+
     @Override
-    public String delete() {
-      file.delete();
-      return "";
+    public void delete() {
+      delete(file);
     }
   }
 }

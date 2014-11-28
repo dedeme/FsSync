@@ -18,6 +18,7 @@
 package fssync;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -62,11 +63,23 @@ public class ServerSync {
         serverName
       ));
 
-    LocalSys localSys = new LocalSys(fLocalRoot);
+    String[] ignoreArr = new String[]{};
+    String ignore = mp.get("ignore");
+    if (ignore != null)
+      ignoreArr = Arrays.stream(ignore.split(";")).map(i->{
+        return i.trim();
+      }).filter(i ->{
+        return !i.equals("");
+      }).toArray(String[]::new);
+
+    LocalSys localSys = new LocalSys(fLocalRoot, ignoreArr);
 
     switch (type) {
       case "local":
-        local(serverName, localSys, remoteRoot, lastSync);
+        local(serverName, localSys, ignoreArr, remoteRoot, lastSync);
+        break;
+      case "smb":
+        smb(serverName, localSys, ignoreArr, remoteRoot, lastSync, mp);
         break;
       default:
         throw new FsSyncException(String.format(
@@ -80,7 +93,8 @@ public class ServerSync {
   }
 
   static void local (
-    String serverName, LocalSys localSys, String remoteRoot, long lastSync
+    String serverName, LocalSys localSys, String[] ignore,
+    String remoteRoot, long lastSync
   ) throws FsSyncException {
     File fRemoteRoot = new File(remoteRoot);
     if (!fRemoteRoot.getParentFile().isDirectory())
@@ -89,9 +103,49 @@ public class ServerSync {
         serverName
       ));
 
-    RemoteLocal r = new RemoteLocal(fRemoteRoot, lastSync);
+    RemoteLocal r = new RemoteLocal(fRemoteRoot, ignore, lastSync);
 
-    Local.sync(localSys.list(), r.list());
+    String err = Local.sync(localSys.list(), r.list());
+    if (!err.equals("")) {
+      throw new FsSyncException(err);
+    }
   }
 
+  static void smb (
+    String serverName, LocalSys localSys, String[] ignore,
+    String remoteRoot, long lastSync, Map<String, String> mp
+  ) throws FsSyncException {
+    String machine = mp.get("machine");
+    if (machine == null)
+      throw new FsSyncException(String.format(
+        "Server '%s': Parameter 'machine' is missing",
+        serverName
+      ));
+
+    String domain = mp.get("domain");
+
+    String user = mp.get("user");
+    if (user == null)
+      throw new FsSyncException(String.format(
+        "Server '%s': Parameter 'user' is missing",
+        serverName
+      ));
+
+    String passKey = mp.get("passKey");
+    if (passKey == null)
+      throw new FsSyncException(String.format(
+        "Server '%s': Parameter 'passKey' is missing",
+        serverName
+      ));
+
+    RemoteSmb r = new RemoteSmb(
+      remoteRoot, ignore, lastSync,
+      machine, domain, user, passKey
+    );
+    
+    String err = Local.sync(localSys.list(), r.list());
+    if (!err.equals("")) {
+      throw new FsSyncException(err);
+    }
+  }
 }

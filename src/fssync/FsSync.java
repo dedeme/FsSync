@@ -19,9 +19,6 @@ package fssync;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import jcifs.smb.*;
 
 /**
  * Main class
@@ -52,6 +49,8 @@ public class FsSync {
       "version=" + FsSync.version,
       "editor=gedit $"
     });
+
+  public static Passwords passwords = new Passwords();
 
   static void showHelp() {
     System.out.println(Io.read("help.txt"));
@@ -116,6 +115,36 @@ public class FsSync {
     }
   }
 
+  static void optionNewSmb(String args[]) throws FsSyncException {
+    if (args.length == 2) {
+      File target = new File(new File(root, "servers"), args[1]);
+      if (target.isFile()) {
+        throw new FsSyncException(String.format(
+          "'new-smb': Server '%s' already exists",
+          args[1]
+        ));
+      }
+      Io.write(target, Io.read("smbTemplate.txt"));
+      String[] command = conf.get("editor").split("\\s");
+      for (int i = 0; i < command.length; ++i) {
+        if (command[i].equals("$")) {
+          command[i] = target.toString();
+        }
+      }
+      try {
+        Runtime.getRuntime().exec(command);
+      } catch (IOException ex) {
+        throw new FsSyncException(
+          "It is not posible to launch the editor."
+        );
+      }
+    } else {
+      throw new FsSyncException(
+        "'new-smb' only admits one and only one argument"
+      );
+    }
+  }
+
   static void optionEdit(String args[]) throws FsSyncException {
     if (args.length == 2) {
       File target = new File(new File(root, "servers"), args[1]);
@@ -140,7 +169,7 @@ public class FsSync {
       }
     } else {
       throw new FsSyncException(
-        "'new-local' only admits one and only one argument"
+        "'edit' only admits one and only one argument"
       );
     }
   }
@@ -160,7 +189,7 @@ public class FsSync {
       System.out.println();
     } else {
       throw new FsSyncException(
-        "'new-local' only admits one and only one argument"
+        "'delete' only admits one and only one argument"
       );
     }
   }
@@ -180,7 +209,7 @@ public class FsSync {
       System.out.println();
     } else {
       throw new FsSyncException(
-        "'new-local' only admits one and only one argument"
+        "'show' only admits one and only one argument"
       );
     }
   }
@@ -190,7 +219,7 @@ public class FsSync {
       File target = new File(new File(root, "servers"), args[1]);
       if (!target.isFile()) {
         throw new FsSyncException(String.format(
-          "'Sync': Server '%s' does not exists",
+          "'sync': Server '%s' does not exists",
           args[1]
         ));
       }
@@ -200,7 +229,7 @@ public class FsSync {
       System.out.println();
     } else {
       throw new FsSyncException(
-        "'new-local' only admits one and only one argument"
+        "'sync' only admits one and only one argument"
       );
     }
   }
@@ -230,6 +259,9 @@ public class FsSync {
         case "new-local":
           optionNewLocal(args);
           break;
+        case "new-smb":
+          optionNewSmb(args);
+          break;
         case "edit":
           optionEdit(args);
           break;
@@ -252,29 +284,6 @@ public class FsSync {
       e.show();
       System.out.println("\nFor help use:\nFsSync help\n");
     }
-    /*
-     Passwords passwords = new Passwords();
-     Remote sambaServer = new Remote(
-     Remote.Type.SAMBA, "192.168.1.2", "deme", "server", 0
-     );
-     sambaServer.connect(passwords);
-     SmbFileInputStream in
-     = new SmbFileInputStream(
-     new SmbFile("smb://server/home/www/dedeme.css", sambaServer.auth));
-     byte[] b = new byte[8192];
-     int n;
-     while ((n = in.read(b)) > 0) {
-     System.out.write(b, 0, n);
-     }
-     System.out.println("here");
-     in
-     = new SmbFileInputStream(
-     new SmbFile("smb://server/home/www/index.html", sambaServer.auth));
-     while ((n = in.read(b)) > 0) {
-     System.out.write(b, 0, n);
-     }
-     System.out.println("here2");
-     */
   }
 
 }

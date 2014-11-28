@@ -24,20 +24,13 @@ import java.util.List;
 /**
  * <p>
  * Interface for synchronizing local data.</p>
- * <p>Examples:</p>
- * <h3>Local directories</h3>
- * <pre>
- String result = Local.sync(
-   FLocalSync.sourceList(new File("/deme/www")),
-   FLocalSync.targetList(new File("/deme/wwwxx"))
- );
- System.out.println(result);</pre>
  *
  * @version 1.0
  * @since 13-Nov-2014
  * @author deme
  */
 public interface Local {
+
   /**
    * File Path
    *
@@ -70,12 +63,17 @@ public interface Local {
   static String copy(Local s, Remote t) {
     String r = "";
     try {
-      if (s.getPath().equals(t.getPath())) {
-        t.delete();
-      }
       if (s.isDirectory()) {
-        t.mkdir();
+        if (t.exists() && !t.isDirectory()) {
+          t.delete();
+        }
+        if (!t.exists()) {
+          t.mkdir();
+        }
       } else {
+        if (t.exists()) {
+          t.delete();
+        }
         InputStream is = s.inputStream();
         OutputStream os = t.outputStream();
         try {
@@ -84,6 +82,7 @@ public interface Local {
           while ((bytesRead = is.read(buffer)) != -1) {
             os.write(buffer, 0, bytesRead);
           }
+
         } catch (Exception ex) {
           r = ex.getMessage();
         } finally {
@@ -103,13 +102,16 @@ public interface Local {
     try {
       for (Remote ft : fs) {
         if (fsource.getPath().equals(ft.getPath())) {
+          if ((fsource.isDirectory() && !ft.isDirectory())
+            || (!fsource.isDirectory() && ft.isDirectory())) {
+            return null;
+          }
           if (fsource.lastModified() > ft.lastSync()) {
             return null;
           }
           return "";
         }
       }
-
       return null;
     } catch (Exception e) {
       return e.getMessage();
@@ -142,21 +144,30 @@ public interface Local {
       return Algor.sync(
         source,
         target,
-        (f, i) -> {
-          return mustCopy(f, i);
+        (fs, i) -> {
+          return mustCopy(fs, i);
         },
-        (f) -> {
+        (fs) -> {
+          String r;
+          try {
+            r = copy(fs, ft.make(fs.isDirectory(), fs.getPath()));
+          } catch (FsSyncException ex) {
+            r = ex.getMessage();
+          }
+          if (r.equals("")) {
+            System.out.println(String.format(
+                "Copied '%s'", fs.getPath()));
+          }
+          return r;
+        },
+        (fr, i) -> {
+          return mustDelete(fr, i);
+        },
+        (fr) -> {
+          fr.delete();
           System.out.println(String.format(
-            "Copied '%s'", f.getPath()));
-          return copy(f, ft.make(f.getPath()));
-        },
-        (f, i) -> {
-          return mustDelete(f, i);
-        },
-        (f) -> {
-          System.out.println(String.format(
-            "Deleted '%s'", f.getPath()));
-          return f.delete();
+              "Deleted '%s'", fr.getPath()));
+          return "";
         }
       );
 

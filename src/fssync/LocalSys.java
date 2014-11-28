@@ -20,11 +20,9 @@ package fssync;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Source directory for synchronization.
@@ -36,13 +34,16 @@ import java.util.logging.Logger;
 public class LocalSys {
 
   File root;
+  String[] ignore;
 
   /**
    *
    * @param root Root directory to synchronize
+   * @param ignore Paths which will be ignored.
    */
-  public LocalSys(File root) {
+  public LocalSys(File root, String[] ignore) {
     this.root = root;
+    this.ignore = ignore;
   }
 
   void addFile(List<Local> l, File root, String path) throws FsSyncException {
@@ -50,16 +51,25 @@ public class LocalSys {
     l.add(fls);
     if (fls.isDirectory()) {
       for (String str : fls.file.list()) {
-        if (Io.wrongName(str)) {
+        if (Arrays.stream(ignore).anyMatch(i -> {
+          return i.equals(
+            path.equals("") ? str : path + File.separator + str);
+        })) {
+          // continue
+        } else if (Io.wrongName(str)) {
           System.out.println(String.format(
-            "Warning:\n"
+            "*** Warning:\n"
             + "File '%s' in directory '%s' has non-ASCII characters\n"
             + "and can not be syncrhonized",
             str,
             fls.file.toString()
           ));
         } else {
-          addFile(l, root, new File(new File(path), str).toString());
+          if (path.equals("")) {
+            addFile(l, root, str);
+          } else {
+            addFile(l, root, path + File.separator + str);
+          }
         }
       }
     }
