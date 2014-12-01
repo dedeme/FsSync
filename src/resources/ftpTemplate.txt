@@ -1,0 +1,55 @@
+#Ftp server configuration
+#Do not modify that
+-------------------
+type=ftp
+
+#Local data:
+#Root directory in local file system
+#For example:
+#local-root=/home/john/data
+---------------------------
+local-root=
+
+#Local repository
+#Root directory in local file system
+#For example:
+#remote-root=/data
+------------------------------
+remote-root=
+
+#OPTIONAL:
+#Files to ignore
+#Paths of files which will not be copied or deleted separated by semicolons.
+#Every path must be in the same line.
+#For example:
+#ignore=f1.txt;img/logo.png
+ignore=
+
+#Machine name or I.P.
+#For example;
+#machine=192.168.1.12
+#machine=server
+machine=
+
+#OPTIONAL:
+#Machin port
+#For example:
+#port=1223
+port=
+
+#User name
+#For example:
+#user=mack
+user=
+
+#Key for save password
+#Program will ask for the effective password. If there are several connections
+#  with the same key, it will only ask for once and will substitute
+#  automatically key by password.
+passKey=
+
+#OPTIONAL:
+#User account
+#For example:
+#count=work
+count=

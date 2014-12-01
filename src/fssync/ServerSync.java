@@ -81,6 +81,9 @@ public class ServerSync {
       case "smb":
         smb(serverName, localSys, ignoreArr, remoteRoot, lastSync, mp);
         break;
+      case "ftp":
+        ftp(serverName, localSys, ignoreArr, remoteRoot, lastSync, mp);
+        break;
       default:
         throw new FsSyncException(String.format(
           "Server '%s': Value '%s' for parameter 'type' is not valid",
@@ -142,9 +145,57 @@ public class ServerSync {
       remoteRoot, ignore, lastSync,
       machine, domain, user, passKey
     );
-    
+
     String err = Local.sync(localSys.list(), r.list());
     if (!err.equals("")) {
+      throw new FsSyncException(err);
+    }
+  }
+
+  static void ftp (
+    String serverName, LocalSys localSys, String[] ignore,
+    String remoteRoot, long lastSync, Map<String, String> mp
+  ) throws FsSyncException {
+    String machine = mp.get("machine");
+    if (machine == null)
+      throw new FsSyncException(String.format(
+        "Server '%s': Parameter 'machine' is missing",
+        serverName
+      ));
+
+    String port = mp.get("port");
+
+    String user = mp.get("user");
+    if (user == null)
+      throw new FsSyncException(String.format(
+        "Server '%s': Parameter 'user' is missing",
+        serverName
+      ));
+
+    String passKey = mp.get("passKey");
+    if (passKey == null)
+      throw new FsSyncException(String.format(
+        "Server '%s': Parameter 'passKey' is missing",
+        serverName
+      ));
+
+    String account = mp.get("account");
+
+    RemoteFtp r = new RemoteFtp(
+      remoteRoot, ignore, lastSync,
+      machine, port, user, passKey, account
+    );
+
+    String err = Local.sync(localSys.list(), r.list());
+
+    r.disconnect();
+
+    if (err == null) {
+      throw new FsSyncException(
+        "It was not posible to finish the synchronization");
+    }
+
+    if (err != null && !err.equals("")) {
       throw new FsSyncException(err);
     }
   }

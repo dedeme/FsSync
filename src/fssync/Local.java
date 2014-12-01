@@ -82,7 +82,6 @@ public interface Local {
           while ((bytesRead = is.read(buffer)) != -1) {
             os.write(buffer, 0, bytesRead);
           }
-
         } catch (Exception ex) {
           r = ex.getMessage();
         } finally {
@@ -148,17 +147,16 @@ public interface Local {
           return mustCopy(fs, i);
         },
         (fs) -> {
-          String r;
           try {
-            r = copy(fs, ft.make(fs.isDirectory(), fs.getPath()));
-          } catch (FsSyncException ex) {
-            r = ex.getMessage();
+            String r = copy(fs, ft.make(fs.isDirectory(), fs.getPath()));
+            if (r.equals("")) {
+              System.out.println(String.format(
+                  "Copied '%s'", fs.getPath()));
+            }
+            return r;
+          }catch (Exception ex) {
+            return ex.getMessage();
           }
-          if (r.equals("")) {
-            System.out.println(String.format(
-                "Copied '%s'", fs.getPath()));
-          }
-          return r;
         },
         (fr, i) -> {
           return mustDelete(fr, i);
@@ -170,7 +168,6 @@ public interface Local {
           return "";
         }
       );
-
     } catch (Exception e) {
       return e.getMessage();
     }

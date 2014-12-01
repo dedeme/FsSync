@@ -145,6 +145,36 @@ public class FsSync {
     }
   }
 
+  static void optionNewFtp(String args[]) throws FsSyncException {
+    if (args.length == 2) {
+      File target = new File(new File(root, "servers"), args[1]);
+      if (target.isFile()) {
+        throw new FsSyncException(String.format(
+          "'new-ftp': Server '%s' already exists",
+          args[1]
+        ));
+      }
+      Io.write(target, Io.read("ftpTemplate.txt"));
+      String[] command = conf.get("editor").split("\\s");
+      for (int i = 0; i < command.length; ++i) {
+        if (command[i].equals("$")) {
+          command[i] = target.toString();
+        }
+      }
+      try {
+        Runtime.getRuntime().exec(command);
+      } catch (IOException ex) {
+        throw new FsSyncException(
+          "It is not posible to launch the editor."
+        );
+      }
+    } else {
+      throw new FsSyncException(
+        "'new-ftp' only admits one and only one argument"
+      );
+    }
+  }
+
   static void optionEdit(String args[]) throws FsSyncException {
     if (args.length == 2) {
       File target = new File(new File(root, "servers"), args[1]);
@@ -261,6 +291,9 @@ public class FsSync {
           break;
         case "new-smb":
           optionNewSmb(args);
+          break;
+        case "new-ftp":
+          optionNewFtp(args);
           break;
         case "edit":
           optionEdit(args);
