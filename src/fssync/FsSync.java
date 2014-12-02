@@ -175,6 +175,36 @@ public class FsSync {
     }
   }
 
+  static void optionNewGroup(String args[]) throws FsSyncException {
+    if (args.length == 2) {
+      File target = new File(new File(root, "servers"), args[1]);
+      if (target.isFile()) {
+        throw new FsSyncException(String.format(
+          "'new-group': Server '%s' already exists",
+          args[1]
+        ));
+      }
+      Io.write(target, Io.read("groupTemplate.txt"));
+      String[] command = conf.get("editor").split("\\s");
+      for (int i = 0; i < command.length; ++i) {
+        if (command[i].equals("$")) {
+          command[i] = target.toString();
+        }
+      }
+      try {
+        Runtime.getRuntime().exec(command);
+      } catch (IOException ex) {
+        throw new FsSyncException(
+          "It is not posible to launch the editor."
+        );
+      }
+    } else {
+      throw new FsSyncException(
+        "'new-group' only admits one and only one argument"
+      );
+    }
+  }
+
   static void optionEdit(String args[]) throws FsSyncException {
     if (args.length == 2) {
       File target = new File(new File(root, "servers"), args[1]);
@@ -254,9 +284,6 @@ public class FsSync {
         ));
       }
       ServerSync.sync(target);
-      System.out.println(String.format(
-        "Server '%s' synchronized", args[1]));
-      System.out.println();
     } else {
       throw new FsSyncException(
         "'sync' only admits one and only one argument"
@@ -294,6 +321,9 @@ public class FsSync {
           break;
         case "new-ftp":
           optionNewFtp(args);
+          break;
+        case "new-group":
+          optionNewGroup(args);
           break;
         case "edit":
           optionEdit(args);

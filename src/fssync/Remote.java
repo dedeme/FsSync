@@ -40,6 +40,13 @@ public interface Remote {
   public Remote make(boolean isDirectory, String path) throws FsSyncException;
 
   /**
+   * Returns the server name.
+   *
+   * @return Server name
+   */
+  public String getServerName();
+
+  /**
    * File Path
    *
    * @return File Path
@@ -52,9 +59,9 @@ public interface Remote {
    * @return
    * @throws fssync.FsSyncException
    */
-  public boolean exists()  throws FsSyncException;
+  public boolean exists() throws FsSyncException;
 
-   /**
+  /**
    * Indicates if this is a directory
    *
    * @return 'true', if this is a directory. 'false' otherwise
@@ -62,7 +69,7 @@ public interface Remote {
    */
   public boolean isDirectory() throws FsSyncException;
 
- /**
+  /**
    * Time of last synchronization
    *
    * @return Time of last synchronization

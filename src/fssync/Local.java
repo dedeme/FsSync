@@ -39,6 +39,13 @@ public interface Local {
   public String getPath();
 
   /**
+   * Returns the server name.
+   *
+   * @return Server name
+   */
+  public String getServerName();
+
+  /**
    * Time of last modification
    *
    * @return Time of last modification
@@ -151,7 +158,7 @@ public interface Local {
             String r = copy(fs, ft.make(fs.isDirectory(), fs.getPath()));
             if (r.equals("")) {
               System.out.println(String.format(
-                  "Copied '%s'", fs.getPath()));
+                  "Copied '%s:%s'", fs.getServerName(), fs.getPath()));
             }
             return r;
           }catch (Exception ex) {
@@ -164,7 +171,7 @@ public interface Local {
         (fr) -> {
           fr.delete();
           System.out.println(String.format(
-              "Deleted '%s'", fr.getPath()));
+              "Deleted '%s:%s'", fr.getServerName(), fr.getPath()));
           return "";
         }
       );

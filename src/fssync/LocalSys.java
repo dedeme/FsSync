@@ -35,13 +35,16 @@ public class LocalSys {
 
   File root;
   String[] ignore;
+  String serverName;
 
   /**
    *
+   * @param serverName
    * @param root Root directory to synchronize
    * @param ignore Paths which will be ignored.
    */
-  public LocalSys(File root, String[] ignore) {
+  public LocalSys(String serverName, File root, String[] ignore) {
+    this.serverName = serverName;
     this.root = root;
     this.ignore = ignore;
   }
@@ -100,6 +103,11 @@ public class LocalSys {
     @Override
     public String getPath() {
       return path;
+    }
+
+    @Override
+    public String getServerName() {
+      return serverName;
     }
 
     @Override

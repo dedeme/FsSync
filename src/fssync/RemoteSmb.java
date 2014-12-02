@@ -39,11 +39,25 @@ public class RemoteSmb {
   SmbFile root;
   String[] ignore;
   long lastSynchronization;
+  String serverName;
 
+  /**
+   *
+   * @param serverName
+   * @param root
+   * @param ignore
+   * @param lastSync
+   * @param machine
+   * @param domain
+   * @param user
+   * @param passKey
+   * @throws FsSyncException
+   */
   public RemoteSmb(
-    String root, String[] ignore, long lastSync,
+    String serverName, String root, String[] ignore, long lastSync,
     String machine, String domain, String user, String passKey
   ) throws FsSyncException {
+    this.serverName = serverName;
     this.ignore = ignore;
     lastSynchronization = lastSync;
 
@@ -153,6 +167,11 @@ public class RemoteSmb {
       boolean isDirectory, String path
     ) throws FsSyncException {
       return new R(root, path, isDirectory);
+    }
+
+    @Override
+    public String getServerName() {
+      return serverName;
     }
 
     @Override

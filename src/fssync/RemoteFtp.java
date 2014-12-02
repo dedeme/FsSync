@@ -44,16 +44,31 @@ public class RemoteFtp {
   String[] ignore;
   long lastSynchronization;
 
+  String serverName;
   String machine;
   String port;
   String account;
   String user;
   String passKey;
 
+  /**
+   *
+   * @param serverName
+   * @param root
+   * @param ignore
+   * @param lastSync
+   * @param machine
+   * @param port
+   * @param user
+   * @param passKey
+   * @param account
+   * @throws FsSyncException
+   */
   public RemoteFtp(
-    String root, String[] ignore, long lastSync,
+    String serverName, String root, String[] ignore, long lastSync,
     String machine, String port, String user, String passKey, String account
   ) throws FsSyncException {
+    this.serverName = serverName;
     this.root = root;
     this.ignore = ignore;
     lastSynchronization = lastSync;
@@ -231,6 +246,11 @@ public class RemoteFtp {
       R r = new R(null, path);
       r.isDirectory = isDirectory;
       return r;
+    }
+
+    @Override
+    public String getServerName() {
+      return serverName;
     }
 
     @Override

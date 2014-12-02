@@ -39,13 +39,19 @@ public class RemoteLocal {
   String[] ignore;
   long lastSynchronization;
 
+  String serverName;
+
   /**
    *
+   * @param serverName
    * @param root Root of repository
    * @param ignore Paths which will be ignored.
    * @param lastSync Last time which synchronizations was made.
    */
-  public RemoteLocal(File root, String[] ignore, long lastSync) {
+  public RemoteLocal(
+    String serverName, File root, String[] ignore, long lastSync
+  ){
+    this.serverName = serverName;
     this.root = root;
     this.ignore = ignore;
     lastSynchronization = lastSync;
@@ -96,6 +102,11 @@ public class RemoteLocal {
     @Override
     public Remote make(boolean isDirectory, String path) {
       return new R(root, path);
+    }
+
+    @Override
+    public String getServerName() {
+      return serverName;
     }
 
     @Override

@@ -1,0 +1,19 @@
+#Local server configuration
+#Do not modify that
+-------------------
+type=group
+
+#OPTIONAL:
+#Group password key. It is not necessary that they are in the same order as
+#  the matching servers.
+#For example:
+#passKeys=server;local;remote
+---------------------------
+passKeys=
+
+#Server list
+#Servers will be launch in parallel
+#For example:
+#servers=one;main;web
+------------------------------
+servers=
