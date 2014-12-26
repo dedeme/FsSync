@@ -15,3 +15,19 @@ editor:
     Note:
       '$' will be substituted for a file.
 list: Shows server list
+new-local: Creates and edits a configuration file for a new local server.
+  arg: Name of server
+new-smb: Creates and edits a configuration file for a new samba server.
+  arg: Name of server
+new-ftp: Creates and edits a configuration file for a new FTP server.
+  arg: Name of server
+new-ftp: Creates and edits a configuration file for a new server group.
+  arg: Name of group
+show: Shows a configuration file.
+  arg: Name of server
+edit: Edits a configuration file.
+  arg: Name of server
+delete: Deletes a configuration file.
+  arg: Name of server
+sync: Synchronizes a server o a server group.
+  arg: Name of server
