@@ -17,6 +17,7 @@
  */
 package fssync;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -67,6 +68,9 @@ public interface Local {
    */
   public InputStream inputStream() throws Exception;
 
+  public File getFile();
+
+  @SuppressWarnings("ConvertToTryWithResources")
   static String copy(Local s, Remote t) {
     String r = "";
     try {
@@ -81,19 +85,30 @@ public interface Local {
         if (t.exists()) {
           t.delete();
         }
-        InputStream is = s.inputStream();
+
         OutputStream os = t.outputStream();
-        try {
-          byte[] buffer = new byte[1024]; // Adjust if you want
-          int bytesRead;
-          while ((bytesRead = is.read(buffer)) != -1) {
-            os.write(buffer, 0, bytesRead);
+        if (os != null) {
+          InputStream is = s.inputStream();
+          try {
+            byte[] buffer = new byte[1024]; // Adjust if you want
+            int bytesRead;
+            while ((bytesRead = is.read(buffer)) != -1) {
+              os.write(buffer, 0, bytesRead);
+            }
+          } catch (Exception ex) {
+            r = ex.getMessage();
+          } finally {
+            is.close();
+            os.close();
           }
-        } catch (Exception ex) {
-          r = ex.getMessage();
-        } finally {
-          is.close();
-          os.close();
+        } else {
+          try {
+            if (!t.update(s.getFile())) {
+              r = "Is not possible to create OutputStream for copying";
+            }
+          } catch (Exception ex) {
+            r = ex.getMessage();
+          }
         }
       }
     } catch (Exception ex) {

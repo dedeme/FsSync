@@ -17,6 +17,7 @@
  */
 package fssync;
 
+import java.io.File;
 import java.io.OutputStream;
 
 /**
@@ -77,12 +78,21 @@ public interface Remote {
   public long lastSync();
 
   /**
-   * Output stream bound to this
+   * Output stream bound to this (not ftp Remote)
    *
-   * @return Output stream bound to this
+   * @return Output stream bound to this or null (ftp)
    * @throws fssync.FsSyncException
    */
   public OutputStream outputStream() throws FsSyncException;
+
+  /**
+   * Upload a file (ftp Remote)
+   *
+   * @param f File to upload
+   * @return true (ftp) if this function is available.
+   * @throws fssync.FsSyncException
+   */
+  public boolean update (File f) throws FsSyncException;
 
   /**
    * Creates a directory

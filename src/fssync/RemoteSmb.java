@@ -17,6 +17,7 @@
  */
 package fssync;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -208,6 +209,11 @@ public class RemoteSmb {
     }
 
     @Override
+    public boolean update(File f) throws FsSyncException {
+      return false;
+    }
+
+    @Override
     public void mkdir() throws FsSyncException {
       try {
         file.mkdir();
@@ -234,7 +240,7 @@ public class RemoteSmb {
       try {
         file.delete();
       } catch (SmbException ex) {
-        System.out.println(file.getPath() + "\n" +  ex.getMessage());
+        System.out.println(file.getPath() + "\n" + ex.getMessage());
       }
     }
   }

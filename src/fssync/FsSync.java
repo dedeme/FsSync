@@ -345,7 +345,7 @@ public class FsSync {
       }
     } catch (FsSyncException e) {
       e.show();
-      System.out.println("\nFor help use:\nFsSync help\n");
+      System.out.println("\nFor help use:\nfssync help\n");
     }
   }
 

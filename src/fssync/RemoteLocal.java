@@ -50,7 +50,7 @@ public class RemoteLocal {
    */
   public RemoteLocal(
     String serverName, File root, String[] ignore, long lastSync
-  ){
+  ) {
     this.serverName = serverName;
     this.root = root;
     this.ignore = ignore;
@@ -91,6 +91,7 @@ public class RemoteLocal {
   }
 
   class R implements Remote {
+
     String path;
     File file;
 
@@ -140,12 +141,17 @@ public class RemoteLocal {
     }
 
     @Override
+    public boolean update(File f) throws FsSyncException {
+      return false;
+    }
+
+    @Override
     public void mkdir() throws FsSyncException {
       file.mkdir();
     }
 
-    void delete (File f) {
-      if (f.isDirectory()){
+    void delete(File f) {
+      if (f.isDirectory()) {
         Arrays.stream(f.listFiles()).forEach(fl -> delete(fl));
       }
       f.delete();

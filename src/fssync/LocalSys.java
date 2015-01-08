@@ -124,6 +124,12 @@ public class LocalSys {
     public InputStream inputStream() throws Exception {
       return new FileInputStream(file);
     }
+
+    @Override
+    public File getFile() {
+      return file;
+    }
+
   }
 
 }

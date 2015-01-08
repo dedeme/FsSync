@@ -17,17 +17,15 @@
  */
 package fssync;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
-import org.apache.commons.net.ftp.FTP;
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPFile;
-import org.apache.commons.net.ftp.FTPReply;
+import it.sauronsoftware.ftp4j.FTPClient;
+import it.sauronsoftware.ftp4j.FTPFile;
+import java.io.File;
 
 /**
  *
@@ -37,7 +35,7 @@ import org.apache.commons.net.ftp.FTPReply;
  */
 public class RemoteFtp {
 
-  int repeatLimit = 3;
+  int repeatLimit = 10;
 
   FTPClient client;
   String root;
@@ -118,8 +116,6 @@ public class RemoteFtp {
   }
 
   final void connect() throws FsSyncException {
-    int reply;
-    boolean result;
     try {
       client = new FTPClient();
 
@@ -128,27 +124,15 @@ public class RemoteFtp {
       } else {
         client.connect(machine);
       }
-      reply = client.getReplyCode();
-      if (!FTPReply.isPositiveCompletion(reply)) {
-        client.disconnect();
-        throw new Exception("FTP server refused connection.");
-      }
 
       if (account != null) {
-        result = client.login(user, FsSync.passwords.get(passKey), account);
+        client.login(user, FsSync.passwords.get(passKey), account);
       } else {
-        result = client.login(user, FsSync.passwords.get(passKey));
+        client.login(user, FsSync.passwords.get(passKey));
       }
 
-      if (!result) {
-        reply = client.getReplyCode();
-        if (!FTPReply.isPositiveCompletion(reply)) {
-          client.disconnect();
-          throw new Exception("FTP server refused login.");
-        }
-      }
-      client.enterLocalPassiveMode();
-      client.setFileType(FTP.BINARY_FILE_TYPE);
+      client.setPassive(true);
+      client.setType(FTPClient.TYPE_BINARY);
     } catch (Exception ex) {
       throw new FsSyncException(ex.getMessage());
     }
@@ -157,8 +141,7 @@ public class RemoteFtp {
   public void disconnect() {
     try {
       if (client.isConnected()) {
-        client.logout();
-        client.disconnect();
+        client.disconnect(true);
       }
     } catch (Exception ex) {
       System.out.println(ex.getMessage());
@@ -168,7 +151,7 @@ public class RemoteFtp {
   FTPFile[] list(String path) throws FsSyncException {
     return op(() -> {
       try {
-        return client.listFiles(path);
+        return client.list(path);
       } catch (Exception ex) {
         return null;
       }
@@ -230,12 +213,12 @@ public class RemoteFtp {
       this.file = file;
       isDirectory = true;
       if (file != null) {
-        isDirectory = file.isDirectory();
+        isDirectory = file.getType() == FTPFile.TYPE_DIRECTORY;
       }
       if (path.equals("")) {
         absolutePath = root;
       } else {
-        absolutePath = root + "/" + path;
+        absolutePath = root + (root.endsWith("/") ? "" : "/") + path;
       }
     }
 
@@ -275,27 +258,29 @@ public class RemoteFtp {
     }
 
     @Override
+    public boolean update(File f) throws FsSyncException {
+      try {
+        client.changeDirectory(
+          absolutePath.substring(0, absolutePath.lastIndexOf("/")));
+        client.upload(f);
+        return true;
+      } catch (Exception ex) {
+        throw new FsSyncException(ex.getMessage());
+      }
+    }
+
+    @Override
     public OutputStream outputStream() throws FsSyncException {
-      return op(() -> {
-        try {
-          disconnect();
-          connect();
-          return client.storeFileStream(absolutePath);
-        } catch (Exception ex) {
-          return null;
-        }
-      }, "It is not posible to create the OutputStream:\n  " + absolutePath);
+      return null;
     }
 
     @Override
     public void mkdir() throws FsSyncException {
       op0(() -> {
         try {
-          if (client.makeDirectory(absolutePath)) {
-            return null;
-          }
-          return "Error making directory";
-        } catch (IOException ex) {
+          client.createDirectory(absolutePath);
+          return null;
+        } catch (Exception ex) {
           return ex.getMessage();
         }
       });
@@ -314,7 +299,7 @@ public class RemoteFtp {
               delete(new R(ff, f.path + "/" + fl));
             }
           }
-          client.removeDirectory(f.absolutePath);
+          client.deleteDirectory(f.absolutePath);
         } else {
           client.deleteFile(f.absolutePath);
         }
